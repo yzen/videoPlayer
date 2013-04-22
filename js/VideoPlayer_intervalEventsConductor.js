@@ -34,25 +34,27 @@ var fluid_1_5 = fluid_1_5 || {};
                 events: {
                     onCreate: "onCreate"
                 },
-                args: ["{intervalEventsConductor}"]
+                args: ["{that}"]
             }
         },
         listeners: {
-            onTimeUpdate: {
-                listener: "fluid.videoPlayer.intervalEventsConductor.handleTimeUpdate",
-                args: ["{fluid.videoPlayer.intervalEventsConductor}", "{arguments}.0", "{arguments}.1"]
-            }
+            onTimeUpdate: "{that}.handleTimeUpdate"
         },
         invokers: {
+            handleTimeUpdate: {
+                funcName: "fluid.videoPlayer.intervalEventsConductor.handleTimeUpdate",
+                args: ["{that}", "{arguments}.0", "{arguments}.1"]
+            },
             setIntervalList: {
                 funcName: "fluid.videoPlayer.intervalEventsConductor.setIntervalList",
-                args: ["{fluid.videoPlayer.intervalEventsConductor}", "{arguments}.0"]
+                args: ["{that}", "{arguments}.0"]
             }  
         },
         // An array of the time intervals with all the begin and end time in millisecond
         // Example: Array[intervalID] = {begin: beginTimeInMilli, end: endTimeInMilli}
-        intervalList: [],
-        
+        members: {
+            intervalList: []
+        },
         model: {
             // The saved interval that was fired at the previous intervalChange event
             previousIntervalId: null
@@ -60,13 +62,13 @@ var fluid_1_5 = fluid_1_5 || {};
     });
     
     fluid.videoPlayer.intervalEventsConductor.setIntervalList = function (that, intervalList) {
-        that.options.intervalList = intervalList;
+        that.intervalList = intervalList;
     };
     
     fluid.videoPlayer.intervalEventsConductor.inInterval = function (currentTimeInMillis, interval) {
         return interval.begin <= currentTimeInMillis && interval.end >= currentTimeInMillis;
     };
-    
+
     /**
      * Find the interval that the current time falls in. Return null if none of the intervals matches.
      * 
@@ -97,15 +99,12 @@ var fluid_1_5 = fluid_1_5 || {};
      * The main process to re-wire the events
      */
     fluid.videoPlayer.intervalEventsConductor.handleTimeUpdate = function (that, currentTime, buffered) {
-        if (that.options.intervalList) {
-            var previousInterval = that.options.model.previousIntervalId;
-            var currentInterval = fluid.videoPlayer.intervalEventsConductor.findCurrentInterval(currentTime, that.options.intervalList, previousInterval);
-            
-            if (currentInterval !== previousInterval) {
-                that.applier.requestChange("previousIntervalId", currentInterval);
-                
-                that.events.onIntervalChange.fire(currentInterval, previousInterval);
-            }
+        var previousInterval = that.model.previousIntervalId;
+        var currentInterval = fluid.videoPlayer.intervalEventsConductor.findCurrentInterval(currentTime, that.intervalList, previousInterval);
+
+        if (currentInterval !== previousInterval) {
+            that.applier.requestChange("previousIntervalId", currentInterval);
+            that.events.onIntervalChange.fire(currentInterval, previousInterval);
         }
     };
 

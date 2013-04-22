@@ -55,7 +55,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             jqUnit.test("onIntervalChange event gets fired: " + desc, function () {
                 jqUnit.expect(2);
                 var that = fluid.videoPlayer.intervalEventsConductor({
-                    intervalList: testIntervalList,
+                    members: {
+                        intervalList: testIntervalList
+                    },
                     model: {
                         previousIntervalId: expectedPreviousInterval
                     },
@@ -81,7 +83,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 var onIntervalChangeFired = false;
 
                 var that = fluid.videoPlayer.intervalEventsConductor({
-                    intervalList: testIntervalList,
+                    members: {
+                        intervalList: testIntervalList
+                    },
                     model: {
                         previousIntervalId: previousInterval
                     },
@@ -138,7 +142,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                         }
                     }
                 },
-                intervalList: testIntervalList,
+                members: {
+                    intervalList: testIntervalList
+                },
                 model: {
                     previousIntervalId: previousInterval
                 },
