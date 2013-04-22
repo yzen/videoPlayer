@@ -19,8 +19,7 @@ var fluid_1_5 = fluid_1_5 || {};
 (function ($, fluid) {
 
     fluid.defaults("fluid.videoPlayer.showHide", {
-        gradeNames: ["fluid.modelComponent", "autoInit"],
-        finalInit: "fluid.videoPlayer.showHide.finalInit",
+        gradeNames: ["fluid.modelComponent", "fluid.eventedComponent", "autoInit"],
         modelPrefix: "isShown",
         model: {
             isShown: {
@@ -31,28 +30,33 @@ var fluid_1_5 = fluid_1_5 || {};
                 // unique component name. "handle" is the selector defined in the "scrubber" component.
             }
         },
+        listeners: {
+            onCreate: "{that}.handleSelectors"
+        },
+        invokers: {
+            handleSelectors: {
+                funcName: "fluid.videoPlayer.showHide.handleSelectors",
+                args: ["{that}.options", "{that}.applier", "{that}.dom"]
+            }
+        },
         // The identifier of the component for showing/hiding in the model "isShown" collection,
         // normally the unique component name, or any name as long as it maintains the uniqueness
         // of each component that has the "showHide" grade attached on.
         showHidePath: ""
     });
-    
-    fluid.videoPlayer.showHide.finalInit = function (that) {
-        fluid.each(that.options.selectors, function (selectorValue, selectorKey) {
+
+    fluid.videoPlayer.showHide.handleSelectors = function (options, applier, dom) {
+        fluid.each(options.selectors, function (selectorValue, selectorKey) {
             var modelPath = fluid.pathUtil.composePath(
-                    fluid.pathUtil.composePath(that.options.modelPrefix, that.options.showHidePath),
-                    selectorKey
-                );
-            
-            that.applier.modelChanged.addListener(modelPath, function () {
-                var container = that.locate(selectorKey);
-                
+                fluid.pathUtil.composePath(options.modelPrefix, options.showHidePath),
+                selectorKey
+            );
+            applier.modelChanged.addListener(modelPath, function () {
+                var container = dom.locate(selectorKey);
                 if (!container) {
                     return;
                 }
-
-                var showFlag = fluid.get(that.model, modelPath);
-                
+                var showFlag = fluid.get(options.model, modelPath);
                 container[showFlag ? "show" : "hide"]();
             });
         });
